@@ -9,8 +9,14 @@ fn main() {
         println!("Opened input");
         let buffer = BufReader::new(file);
 
-        for line in buffer.lines() {
-            let curr = line.unwrap().parse::<i32>().unwrap();
+        for window in buffer
+            .lines()
+            .map(|line| line.unwrap().parse::<i32>().unwrap())
+            .collect::<Vec<i32>>()
+            .windows(3)
+        {
+            println!("{:?}", window);
+            let curr: i32 = window.iter().sum();
             if curr > prev {
                 depth_change += 1;
             }
