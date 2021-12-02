@@ -6,9 +6,9 @@ use std::{
 
 fn main() {
     let data = "input.test";
-    match read_input_file(data) {
+    match read_input_file(&data) {
         Ok(commands) => part_1(&commands),
-        Err(msg) => println!("{}", msg),
+        Err(msg) => println!("{}: {}", msg, &data),
     };
 }
 
