@@ -1,8 +1,4 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-    path::Path,
-};
+use std::{io, path::Path};
 
 fn main() {
     let data = "input.test";
@@ -25,15 +21,9 @@ fn part_2(commands: &Vec<String>) {
     println!("Got {} commands", commands.len())
 }
 
-fn read_input_file(input: impl AsRef<Path>) -> Result<Vec<String>, &'static str> {
-    if let Ok(file) = File::open(input) {
-        let commands = BufReader::new(file)
-            .lines()
-            .map(|l| l.expect("Could not parse input"))
-            .collect::<Vec<String>>();
-
-        return Ok(commands);
-    } else {
-        return Err("ERROR: Could not open input");
-    }
+fn read_input_file(input: impl AsRef<Path>) -> Result<Vec<String>, io::Error> {
+    Ok(std::fs::read_to_string(input)?
+        .lines()
+        .map(|l| l.into())
+        .collect::<Vec<String>>())
 }
