@@ -4,11 +4,11 @@ use std::io::{BufRead, BufReader};
 fn main() {
     let mut depth_change = 0;
     let mut prev = i32::MAX;
+
     if let Ok(file) = File::open("input") {
         println!("Opened input");
         let buffer = BufReader::new(file);
 
-        //read the first value
         for line in buffer.lines() {
             let curr = line.unwrap().parse::<i32>().unwrap();
             if curr > prev {
