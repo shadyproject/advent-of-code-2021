@@ -1,5 +1,23 @@
 use std::{io, path::Path};
 
+struct DiagnosticReport {
+    gamma_rate: i32,
+    epsilon_rate: i32,
+}
+
+impl DiagnosticReport {
+    fn new() -> Self {
+        Self {
+            gamma_rate: 0,
+            epsilon_rate: 0,
+        }
+    }
+
+    fn power_consumption_rate(&self) -> i32 {
+        self.gamma_rate * self.epsilon_rate
+    }
+}
+
 fn main() {
     let data = "input.test";
     match read_input_file(&data) {
