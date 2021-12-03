@@ -61,14 +61,51 @@ fn part_1(commands: &Vec<Vec<u32>>) {
 fn part_2(original: &Vec<Vec<u32>>) {
     println!("Running Part 2");
     let mut r = DiagnosticReport::new();
-    //gave up fighting with the borrow checker so just clone everything lol
-    let trans = transpose(original.clone());
+    r.oxygen_generator_rating = calculate_o2_rating(original);
+    r.co2_scrubber_rating = calculate_co2_rating(original);
 
-    let mut working_set = original.clone();
-    for idx in 0..original.first().unwrap().len() {
+    println!("O2 Rating: {}", r.oxygen_generator_rating);
+    println!("CO2 Rating: {}", r.co2_scrubber_rating);
+    println!("Life Support Rating: {}", r.life_suppport_rating())
+}
+
+fn calculate_co2_rating(vec: &Vec<Vec<u32>>) -> u32 {
+    let mut working_set = vec.clone();
+    for idx in 0..vec.first().unwrap().len() {
         if working_set.len() == 1 {
             break;
         }
+
+        let trans = transpose(working_set.clone());
+
+        let mut co2_criteria = 0;
+        if !does_need_stupid_edge_case(trans.iter().nth(idx).unwrap()) {
+            co2_criteria = inverse_mode(trans.iter().nth(idx).unwrap()).unwrap();
+        }
+        // let co2_scrubber = inverse_mode(trans.iter().nth(idx).unwrap()).unwrap();
+
+        let candidates = working_set
+            .iter()
+            .filter(|v| does_match_criteria_at_position(co2_criteria, idx, v))
+            .map(|v| v.clone())
+            .collect::<Vec<Vec<u32>>>();
+
+        working_set = candidates;
+    }
+
+    println!("{:?}", working_set);
+    to_u32(working_set.first().unwrap())
+}
+
+fn calculate_o2_rating(vec: &Vec<Vec<u32>>) -> u32 {
+    //gave up fighting with the borrow checker so just clone everything lol
+    let mut working_set = vec.clone();
+    for idx in 0..vec.first().unwrap().len() {
+        if working_set.len() == 1 {
+            break;
+        }
+
+        let trans = transpose(working_set.clone());
 
         let mut o2_criteria = 1;
         if !does_need_stupid_edge_case(trans.iter().nth(idx).unwrap()) {
@@ -86,11 +123,7 @@ fn part_2(original: &Vec<Vec<u32>>) {
     }
 
     println!("{:?}", working_set);
-    r.oxygen_generator_rating = to_u32(working_set.first().unwrap());
-
-    println!("O2 Rating: {}", r.oxygen_generator_rating);
-    println!("CO2 Rating: {}", r.co2_scrubber_rating);
-    println!("Life Support Rating: {}", r.life_suppport_rating())
+    to_u32(working_set.first().unwrap())
 }
 
 fn does_match_criteria_at_position(criteria: u32, position: usize, vec: &Vec<u32>) -> bool {
