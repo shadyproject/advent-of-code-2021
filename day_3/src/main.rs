@@ -27,7 +27,7 @@ impl DiagnosticReport {
 }
 
 fn main() {
-    let data = "input.test";
+    let data = "input";
     println!("Using data file {}", data);
     match read_input_file(&data) {
         Ok(commands) => {
@@ -76,13 +76,16 @@ fn calculate_co2_rating(vec: &Vec<Vec<u32>>) -> u32 {
             break;
         }
 
+        // println!("Readings: {:?}", working_set);
+
         let trans = transpose(working_set.clone());
+        // println!("Transposed Slice: {:?}", trans.iter().nth(idx));
 
         let mut co2_criteria = 0;
         if !does_need_stupid_edge_case(trans.iter().nth(idx).unwrap()) {
-            co2_criteria = inverse_mode(trans.iter().nth(idx).unwrap()).unwrap();
+            co2_criteria = anti_mode(trans.iter().nth(idx).unwrap()).unwrap();
         }
-        // let co2_scrubber = inverse_mode(trans.iter().nth(idx).unwrap()).unwrap();
+        // println!("CO2 Criteria: {}", co2_criteria);
 
         let candidates = working_set
             .iter()
@@ -93,7 +96,7 @@ fn calculate_co2_rating(vec: &Vec<Vec<u32>>) -> u32 {
         working_set = candidates;
     }
 
-    println!("{:?}", working_set);
+    // println!("{:?}", working_set);
     to_u32(working_set.first().unwrap())
 }
 
@@ -111,7 +114,6 @@ fn calculate_o2_rating(vec: &Vec<Vec<u32>>) -> u32 {
         if !does_need_stupid_edge_case(trans.iter().nth(idx).unwrap()) {
             o2_criteria = mode(trans.iter().nth(idx).unwrap()).unwrap();
         }
-        // let co2_scrubber = inverse_mode(trans.iter().nth(idx).unwrap()).unwrap();
 
         let candidates = working_set
             .iter()
@@ -122,7 +124,6 @@ fn calculate_o2_rating(vec: &Vec<Vec<u32>>) -> u32 {
         working_set = candidates;
     }
 
-    println!("{:?}", working_set);
     to_u32(working_set.first().unwrap())
 }
 
@@ -141,22 +142,31 @@ fn to_u32(vec: &Vec<u32>) -> u32 {
     vec.iter().fold(0, |acc, &b| acc * 2 + b as u32)
 }
 
-fn inverse_mode(numbers: &[u32]) -> Option<u32> {
-    let mut counts = HashMap::new();
-    numbers.iter().copied().min_by_key(|&n| {
-        let count = counts.entry(n).or_insert(0);
-        *count += 1;
-        *count
-    })
+// https://math.stackexchange.com/questions/3446624/is-there-an-accepted-term-for-the-opposite-of-mode-in-statistics
+fn anti_mode(numbers: &[u32]) -> Option<u32> {
+    let mut occurrences = HashMap::new();
+
+    for &value in numbers {
+        *occurrences.entry(value).or_insert(0) += 1;
+    }
+
+    occurrences
+        .into_iter()
+        .min_by_key(|&(_, count)| count)
+        .map(|(val, _)| val)
 }
 
 fn mode(numbers: &[u32]) -> Option<u32> {
-    let mut counts = HashMap::new();
-    numbers.iter().copied().max_by_key(|&n| {
-        let count = counts.entry(n).or_insert(0);
-        *count += 1;
-        *count
-    })
+    let mut occurrences = HashMap::new();
+
+    for &value in numbers {
+        *occurrences.entry(value).or_insert(0) += 1;
+    }
+
+    occurrences
+        .into_iter()
+        .max_by_key(|&(_, count)| count)
+        .map(|(val, _)| val)
 }
 
 fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
